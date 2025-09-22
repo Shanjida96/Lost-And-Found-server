@@ -3,13 +3,13 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
 const { MongoClient, ServerApiVersion } = require("mongodb");
-
+require("dotenv").config();
 
 app.use(cors());
 app.use(express.json());
 
 const uri =
-    `mongodb+srv://${process.env.DB_USER}:${DB_PASSWORD}@cluster0.ncobj2l.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ncobj2l.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -32,11 +32,15 @@ async function run() {
       const result = await usersCollection.insertOne(userProfile);
       res.send(result);
     });
-    app.post("/lostandfound",async(req,res)=>{
+    app.post("/items",async(req,res)=>{
       const newPost = req.body;
-      // console.log(newPost)
+      console.log(newPost)
       const result = await lostandfoundCollection.insertOne(newPost)
       console.log(result)
+      res.send(result)
+    })
+    app.get("/items",async(req,res)=>{
+      const result = await lostandfoundCollection.find().toArray();
       res.send(result)
     })
     // Send a ping to confirm a successful connection
