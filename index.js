@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 app.use(cors());
@@ -26,6 +26,7 @@ async function run() {
     await client.connect();
     const usersCollection = client.db("LostAndFoundDB").collection("users");
     const  lostandfoundCollection = client.db("LostAndFoundDB").collection("LostAndFound")
+    const  recoveredCollection = client.db("RecoveredDB").collection("RecoveredDB")
     app.post("/users", async (req, res) => {
       const userProfile = req.body;
       console.log(userProfile);
@@ -33,15 +34,34 @@ async function run() {
       res.send(result);
     });
     app.post("/items",async(req,res)=>{
-      const newPost = req.body;
+      const newPost = {
+        ...req.body,
+        date: new Date(req.body.date)
+      }
       console.log(newPost)
       const result = await lostandfoundCollection.insertOne(newPost)
       console.log(result)
       res.send(result)
     })
-    app.get("/items",async(req,res)=>{
-      const result = await lostandfoundCollection.find().toArray();
+    app.post('/recovered/:id',async(req,res)=>{
+      const recovered = req.body;
+      const Id = req.params.id
+      const result = await recoveredCollection.insertOne(recovered);
+      res.send(result);
+    })
+    app.get('/recovered/:id',async(req,res)=>{
+      const result =await recoveredCollection.find().toArray();
       res.send(result)
+    })
+    app.get("/items",async(req,res)=>{
+      const result = await lostandfoundCollection.find().sort({date: -1}).toArray();
+      res.send(result)
+    })
+    app.get("/items/:id",async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await lostandfoundCollection.findOne(query);
+      res.send(result);
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
