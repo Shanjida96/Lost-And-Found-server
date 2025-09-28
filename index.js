@@ -49,7 +49,7 @@ async function run() {
       const result = await recoveredCollection.insertOne(recovered);
       res.send(result);
     })
-    app.get('/recovered/:id',async(req,res)=>{
+      app.get('/recovered/:id',async(req,res)=>{
       const result =await recoveredCollection.find().toArray();
       res.send(result)
     })
@@ -63,6 +63,13 @@ async function run() {
       const result = await lostandfoundCollection.findOne(query);
       res.send(result);
     })
+    app.get('/myitems',async(req,res)=>{
+      const email = req.query.email;
+      const query = {email: email}
+      const posts = await lostandfoundCollection.find(query).toArray();
+      res.send(posts)
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
