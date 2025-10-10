@@ -53,6 +53,12 @@ async function run() {
       const result =await recoveredCollection.find().toArray();
       res.send(result)
     })
+    app.get('/allRecovered',async(req,res)=>{
+      const email = req.query.email;
+      const query = {email: email}
+      const recovered = await recoveredCollection.find(query).toArray()
+      res.send(recovered);
+    })
     app.get("/items",async(req,res)=>{
       const result = await lostandfoundCollection.find().sort({date: -1}).toArray();
       res.send(result)
@@ -69,7 +75,22 @@ async function run() {
       const posts = await lostandfoundCollection.find(query).toArray();
       res.send(posts)
     })
-
+    app.get('/myitems/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await lostandfoundCollection.findOne(query)
+      res.send(result);
+    })
+    app.patch("/myitems/:id",async(req,res)=>{
+        const id = req.params.id;
+        const updatedItem =req.body
+        const filter = {_id: new ObjectId(id)};
+        const updatedDoc = {
+          $set: {
+           ...updatedItem
+          }
+        }
+    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
